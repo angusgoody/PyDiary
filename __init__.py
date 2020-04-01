@@ -33,5 +33,6 @@ class PyDiary(Tk):
 
 #Final Call
 if __name__ == '__main__':
-	pass
+	window=PyDiary()
+	window.mainloop()
 
