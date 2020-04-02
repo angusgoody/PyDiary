@@ -73,6 +73,8 @@ class createDiaryFileWindow(mainTopLevel):
         self.passwordSection.grid(row=1, column=0,pady=7)
         self.confirmPasswordSection = hiddenDataSection(self.centerFrame, "Confirm: ")
         self.confirmPasswordSection.grid(row=2, column=0)
+        self.hintSection=dataSection(self.centerFrame,"Hint: ")
+        self.hintSection.grid(row=3,column=0,pady=20)
         # Add Status Bar
         self.statusBar=mainFrame(self)
         #self.statusBar.grid(row=1,column=0,sticky=EW)
@@ -205,10 +207,16 @@ class PyDiary(Tk):
         if validCount >= len(checkEntryDict):
             #Check the passwords
             userPassword=windowObject.checkPassword()
-            if userPassword == False:
+            if not userPassword:
                 invalidReason="Passwords do not match"
             else:
-                print("Everything is valid")
+                hint=windowObject.hintSection.entry.getContent()
+                if len(hint.split()) < 1:
+                    hint=None
+                #Create a new Diary
+                self.createNewDiary(checkEntryDict[windowObject.diaryNameSection.entry],
+                                    checkEntryDict[windowObject.passwordSection.entry],hint)
+
 
         #Check for Error messages
         if invalidReason is not None:
@@ -216,7 +224,15 @@ class PyDiary(Tk):
         else:
             windowObject.hideStatus()
 
-
+    def createNewDiary(self,diaryName,diaryPassword,hint):
+        """
+        Will create and store a
+        new diary object
+        """
+        print("\nReady to create a new diary")
+        print("Name: ",diaryName)
+        print("Password: ",diaryPassword)
+        print("Hint: ",hint)
 
 
 
