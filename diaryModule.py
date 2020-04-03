@@ -9,6 +9,7 @@ Contains Diary Classes
 """
 
 # =========IMPORTS==========
+from datetime import date
 
 # =========FUNCTIONS==========
 

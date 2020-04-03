@@ -7,9 +7,10 @@ Angus Goody
 # =========IMPORTS==========
 from shed.tkinterTools import *
 from shed.storageTools import *
+from diaryModule import *
 
 globalOffWhiteColour="#f2f2f2"
-
+globalRedColour="#f09892"
 # =========SCREENS==========
 class openScreen(screen):
     """
@@ -144,8 +145,13 @@ class viewDiaryScreen(screen):
         self.topBar.grid(row=0,column=0)
         self.mainContent=mainFrame(self)
         self.mainContent.grid(row=1,column=0,sticky="NSEW")
-        self.buttonBar=buttonSection(self)
-        self.buttonBar.grid(row=2,column=0)
+        self.buttonFrame=mainFrame(self)
+        self.buttonFrame.grid(row=2, column=0)
+        self.buttonFrame.grid_columnconfigure(0,weight=1)
+        self.leftButtonSection=buttonSection(self.buttonFrame)
+        self.leftButtonSection.grid(row=0,column=0,sticky="EW",padx=20)
+        self.rightButtonSection=buttonSection(self.buttonFrame)
+        self.rightButtonSection.grid(row=0,column=1,sticky="EW",padx=20)
         #Title
         self.topBar.gridConfig(0)
         self.titleLabel=titleLabel(self.topBar,text="Diary - Entries")
@@ -156,11 +162,10 @@ class viewDiaryScreen(screen):
         #self.diaryEntryListbox.configure(width=150)
         self.diaryEntryListbox.grid(row=0,column=0,sticky="NSEW")
         #Buttons
-        self.buttonBar.addButton("Delete")
-        self.buttonBar.addButton("Create")
-        self.buttonBar.addButton("Open")
-
-
+        self.rightButtonSection.addButton("Delete")
+        self.rightButtonSection.addButton("Open")
+        self.leftButtonSection.addButton("Back")
+        self.leftButtonSection.addButton("Create")
 
 
 
@@ -191,7 +196,6 @@ class createDiaryFileWindow(mainTopLevel):
         self.hintSection.grid(row=3,column=0,pady=20)
         # Add Status Bar
         self.statusBar=mainFrame(self)
-        #self.statusBar.grid(row=1,column=0,sticky=EW)
         self.statusBar.gridConfig(0)
         self.statusVar=StringVar()
         self.statusVar.set("Hello world")
@@ -203,7 +207,7 @@ class createDiaryFileWindow(mainTopLevel):
         self.buttonBar.addButton("Cancel")
         self.buttonBar.addButton("Save")
         #Colour
-        self.statusBar.colour("#f09892")
+        self.statusBar.colour(globalRedColour)
         self.buttonBar.colour("#dde4eb")
         # Add exit button command
         self.buttonBar.getButton("Cancel").config(command=self.quit)
@@ -262,6 +266,70 @@ class createDiaryEntryWindow(mainTopLevel):
     """
     def __init__(self,windowInstance):
         mainTopLevel.__init__(self,windowInstance,"Create Diary Entry")
+        # Config
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        # Top Bar
+        self.topBar=mainFrame(self)
+        self.topBar.grid(row=0,column=0,sticky="EW")
+        self.topBar.gridConfig(0)
+        # Date
+        self.dateVar=StringVar()
+        self.dateLabel=advancedLabel(self.topBar,textvariable=self.dateVar)
+        self.dateLabel.grid(row=0,column=0,pady=20)
+        # Center
+        self.centerFrame = mainFrame(self)
+        self.centerFrame.grid(row=1, column=0)
+        # Data Section
+        self.diaryEntryTitle=dataSection(self.centerFrame,"Entry Title: ")
+        self.diaryEntryTitle.grid(row=1,column=0)
+        # Add Status Bar
+        self.statusBar=mainFrame(self)
+        self.statusBar.gridConfig(0)
+        self.statusVar=StringVar()
+        self.statusVar.set("Hello world")
+        self.statusLabel=advancedLabel(self.statusBar,textvariable=self.statusVar)
+        self.statusLabel.grid(row=0,column=0)
+        # Button Section
+        self.buttonSection=buttonSection(self)
+        self.buttonSection.grid(row=3,column=0,sticky="EW")
+        self.buttonSection.addButton("Cancel")
+        self.buttonSection.addButton("Save")
+        #Colour
+        self.statusBar.colour(globalRedColour)
+        self.buttonSection.colour("#e4ebdd")
+        # Add exit button command
+        self.buttonSection.getButton("Cancel").config(command=self.quit)
+
+    def setup(self):
+        #Setup Current Date
+        self.dateVar.set("Date: "+str(date.today()))
+        #Insert Template Name
+        #todo add while loop to check for previous entries
+        numberOfEntries=0
+        self.diaryEntryTitle.entry.insert(END,"Entry #"+str(numberOfEntries+1))
+        #todo add banned words
+        #Run a content check after inserting data
+        self.diaryEntryTitle.entry.checkContent()
+        #Add the command
+        self.buttonSection.getButton("Save").config(command=lambda: self.master.checkNewDiaryEntryDetails(self))
+
+
+    def hideStatus(self):
+        """
+        Will hide the status bar
+        """
+        self.statusBar.grid_forget()
+
+    def showStatus(self,message):
+        """
+        Will show the status bar
+        and display a message
+        """
+        self.statusBar.grid(row=2,column=0,sticky=EW)
+        self.statusVar.set(message)
+
+
 # =========MAIN PROGRAM==========
 class PyDiary(Tk):
     """
@@ -271,7 +339,7 @@ class PyDiary(Tk):
         Tk.__init__(self)
         #Setup
         self.title("PyDiary")
-        self.geometry("600x500")
+        self.geometry("700x500")
         self.grid_rowconfigure(0,weight=1)
         self.grid_columnconfigure(0,weight=1)
         self.screenMaster=screenController(self)
@@ -290,6 +358,8 @@ class PyDiary(Tk):
         #======BUTTON COMMANDS======
         #Open Screen
         self.openScreen.buttonSection.getButton("Create").config(command=self.launchCreateDiaryFileWindow)
+        #ViewDiaryScreen
+        self.viewDiaryScreen.leftButtonSection.getButton("Create").config(command=self.launchCreateDiaryEntryWindow)
 
     def launchCreateDiaryFileWindow(self):
         """
@@ -300,6 +370,30 @@ class PyDiary(Tk):
         newWindow = createDiaryFileWindow(self)
         newWindow.setup()
         newWindow.runWindow()
+
+    def launchCreateDiaryEntryWindow(self):
+        """
+        Launches a window
+        for the user to create a new diary entry
+        """
+        # Create our new popup
+        newWindow = createDiaryEntryWindow(self)
+        newWindow.setup()
+        newWindow.runWindow()
+
+    def checkNewDiaryEntryDetails(self,windowObject):
+        """
+        Will check to see if the details
+        the user entered are valid
+        """
+        validOrNot=windowObject.diaryEntryTitle.entry.contentValid
+        if not validOrNot:
+            reasonInvalid=windowObject.diaryEntryTitle.entry.reasonInvalid
+            windowObject.showStatus(reasonInvalid)
+            #Make the Entry red
+            windowObject.diaryEntryTitle.entry.markInvalid()
+        else:
+            windowObject.hideStatus()
 
     def checkNewDiaryDetails(self,windowObject):
         """
