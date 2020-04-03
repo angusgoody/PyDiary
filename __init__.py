@@ -71,8 +71,13 @@ class viewDiaryScreen(screen):
         self.titleMiddle.grid(row=0,column=1,sticky="EW")
         self.titleRightSide=mainFrame(self.titleBar)
         self.titleRightSide.grid(row=0,column=2,sticky="EW")
+
         self.toolBar=mainFrame(self)
         self.toolBar.grid(row=1,column=0,sticky="EW")
+        self.toolBar.gridConfig(0)
+        self.toolBarMiddle=mainFrame(self.toolBar)
+        self.toolBarMiddle.grid(row=0,column=0)
+
         self.mainContent = mainFrame(self)
         self.mainContent.grid(row=2, column=0, sticky="NSEW")
         self.buttonSection = buttonSection(self)
@@ -82,7 +87,6 @@ class viewDiaryScreen(screen):
         self.titleLeftSide.gridConfig(0)
         self.currentDiaryName=StringVar()
         self.currentDiaryName.set("My Diary - Entry #1")
-
         self.titleLabel=advancedLabel(self.titleLeftSide,textvariable=self.currentDiaryName)
         self.titleLabel.config(font=globalFont)
         self.titleLabel.grid(row=0,column=0)
@@ -101,6 +105,11 @@ class viewDiaryScreen(screen):
         self.wordCountLabel.config(font=globalFontTiny)
         self.wordCountLabel.grid(row=0,column=0)
         #Tool Bar
+        #todo create custom class with bold font option
+        self.boldButton=Button(self.toolBarMiddle,text="B",width=7)
+        self.boldButton.grid(row=0,column=0)
+        self.italicButton=Button(self.toolBarMiddle,text="I",width=7)
+        self.italicButton.grid(row=0,column=1)
         #Main Content
         self.mainContent.gridConfig(0)
         self.textArea=Text(self.mainContent)
