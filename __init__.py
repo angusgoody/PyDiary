@@ -50,13 +50,13 @@ class unlockScreen(screen):
     def __init__(self,controller):
         screen.__init__(self,controller,"Unlock")
 
-class viewDiaryScreen(screen):
+class viewDiaryEntryScreen(screen):
     """
     Screen where user
     can view and edit diary contents
     """
     def __init__(self,controller):
-        screen.__init__(self,controller,"Diary")
+        screen.__init__(self,controller,"Diary Entry")
         self.grid_columnconfigure(0,weight=1)
         self.grid_rowconfigure(2,weight=1)
         # Configure sections
@@ -124,10 +124,43 @@ class viewDiaryScreen(screen):
         self.textArea.configure(borderwidth=0, highlightthickness=0)
         self.textArea.grid(row=0,column=0,sticky="NSEW")
         #Button Bar
+        self.buttonSection.addButton("Close")
         self.buttonSection.addButton("Save")
         #Colour
         self.buttonSection.colour(globalOffWhiteColour)
-        self.toolBar.colour("#b4dbcd")
+        #self.titleBar.colour("#d1e8cc")
+
+class viewDiaryScreen(screen):
+    """
+    Screen where user
+    can view and edit diary contents
+    """
+    def __init__(self,controller):
+        screen.__init__(self,controller,"Diary")
+        self.grid_columnconfigure(0,weight=1)
+        self.grid_rowconfigure(1,weight=1)
+        #Configure
+        self.topBar=mainFrame(self)
+        self.topBar.grid(row=0,column=0)
+        self.mainContent=mainFrame(self)
+        self.mainContent.grid(row=1,column=0,sticky="NSEW")
+        self.buttonBar=buttonSection(self)
+        self.buttonBar.grid(row=2,column=0)
+        #Title
+        self.topBar.gridConfig(0)
+        self.titleLabel=titleLabel(self.topBar,text="Diary - Entries")
+        self.titleLabel.grid(row=0,column=0)
+        #Main
+        self.mainContent.gridConfig(0)
+        self.diaryEntryListbox=advancedListbox(self.mainContent)
+        #self.diaryEntryListbox.configure(width=150)
+        self.diaryEntryListbox.grid(row=0,column=0,sticky="NSEW")
+        #Buttons
+        self.buttonBar.addButton("Delete")
+        self.buttonBar.addButton("Create")
+        self.buttonBar.addButton("Open")
+
+
 
 
 
@@ -221,6 +254,14 @@ class createDiaryFileWindow(mainTopLevel):
         else:
             return False
 
+class createDiaryEntryWindow(mainTopLevel):
+    """
+    A popup window
+    that will allow the user
+    to create a new diary entry
+    """
+    def __init__(self,windowInstance):
+        mainTopLevel.__init__(self,windowInstance,"Create Diary Entry")
 # =========MAIN PROGRAM==========
 class PyDiary(Tk):
     """
@@ -241,8 +282,8 @@ class PyDiary(Tk):
         #Reference the screens
         self.openScreen=openScreen(self.screenMaster)
         self.unlockScreen=unlockScreen(self.screenMaster)
+        self.viewDiaryEntryScreen=viewDiaryEntryScreen(self.screenMaster)
         self.viewDiaryScreen=viewDiaryScreen(self.screenMaster)
-
         #Show Call
         self.viewDiaryScreen.show()
 
