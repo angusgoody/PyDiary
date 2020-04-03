@@ -29,14 +29,29 @@ class diary:
 		self.font="Helvetica"
 		self.fontSize="13"
 		self.darkMode=False
+		#Store Content
+		self.entryList=[]
+
+	def addEntry(self,title):
+		"""
+		Will add an entry
+		to the diary
+		"""
+		#Create the object
+		newEntryObject=diaryEntry(title)
+		#Add to array
+		self.entryList.append(newEntryObject)
+		#Return
+		return newEntryObject
+
 
 class diaryEntry:
 	"""
 	The diaryEntry stores
 	all the data for a specific diary entry
 	"""
-	def __init__(self):
-		self.title = None
+	def __init__(self,title):
+		self.title = title
 		self.timeCreated=None
 		self.content=""
 
