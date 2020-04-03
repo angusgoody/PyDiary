@@ -50,6 +50,44 @@ class unlockScreen(screen):
     def __init__(self,controller):
         screen.__init__(self,controller,"Unlock")
 
+class viewDiaryScreen(screen):
+    """
+    Screen where user
+    can view and edit diary contents
+    """
+    def __init__(self,controller):
+        screen.__init__(self,controller,"Diary")
+        self.grid_columnconfigure(0,weight=1)
+        self.grid_rowconfigure(2,weight=1)
+        # Configure sections
+        self.titleBar = mainFrame(self)
+        self.titleBar.grid(row=0, column=0, sticky="EW")
+        self.toolBar=mainFrame(self)
+        self.toolBar.grid(row=1,column=0,sticky="EW")
+        self.mainContent = mainFrame(self)
+        self.mainContent.grid(row=2, column=0, sticky="NSEW")
+        self.buttonSection = buttonSection(self)
+        self.buttonSection.grid(row=3, column=0, sticky="EW")
+        #Title Bar
+        self.titleBar.gridConfig(0)
+        self.currentDiaryName=StringVar()
+        self.currentDiaryName.set("My Diary")
+        self.titleLabel=titleLabel(self.titleBar,textvariable=self.currentDiaryName)
+        self.titleLabel.grid(row=0,column=0)
+        #Tool Bar
+        #Main Content
+        self.mainContent.gridConfig(0)
+        self.textArea=Text(self.mainContent)
+        self.textArea.configure(borderwidth=0, highlightthickness=0)
+        self.textArea.grid(row=0,column=0,sticky="NSEW")
+        #Button Bar
+        self.buttonSection.addButton("Save")
+        #Colour
+        self.buttonSection.colour(globalOffWhiteColour)
+        self.toolBar.colour("#b4dbcd")
+
+
+
 # =========TOP LEVELS==========
 
 class createDiaryFileWindow(mainTopLevel):
@@ -140,8 +178,6 @@ class createDiaryFileWindow(mainTopLevel):
         else:
             return False
 
-
-
 # =========MAIN PROGRAM==========
 class PyDiary(Tk):
     """
@@ -162,8 +198,10 @@ class PyDiary(Tk):
         #Reference the screens
         self.openScreen=openScreen(self.screenMaster)
         self.unlockScreen=unlockScreen(self.screenMaster)
+        self.viewDiaryScreen=viewDiaryScreen(self.screenMaster)
+
         #Show Call
-        self.openScreen.show()
+        self.viewDiaryScreen.show()
 
         #======BUTTON COMMANDS======
         #Open Screen
@@ -233,9 +271,6 @@ class PyDiary(Tk):
         print("Name: ",diaryName)
         print("Password: ",diaryPassword)
         print("Hint: ",hint)
-
-
-
 
 #Final Call
 if __name__ == '__main__':

@@ -17,8 +17,27 @@ Contains Diary Classes
 class diary:
 	"""
 	The diary object is where
-	all the user data is stored
+	all the user diary entries
+	and stored along with user
+	settings
 	"""
 	def __init__(self,name):
 		self.name=name
-		
+		self.hint=None
+		#Store viewing information
+		self.font="Helvetica"
+		self.fontSize="13"
+		self.darkMode=False
+
+
+class diaryEntry:
+	"""
+	The diaryEntry stores
+	all the data for a specific diary entry
+	"""
+	def __init__(self):
+		self.title = None
+		self.timeCreated=None
+		self.content=""
+
+
