@@ -38,7 +38,7 @@ class diary:
 		to the diary
 		"""
 		#Create the object
-		newEntryObject=diaryEntry(title)
+		newEntryObject=diaryEntry(self,title)
 		#Add to array
 		self.entryList.append(newEntryObject)
 		#Return
@@ -50,9 +50,10 @@ class diaryEntry:
 	The diaryEntry stores
 	all the data for a specific diary entry
 	"""
-	def __init__(self,title):
+	def __init__(self,master,title):
+		self.master=master
 		self.title = title
-		self.timeCreated=None
+		self.dateCreated=str(date.today())
 		self.content=""
 
 

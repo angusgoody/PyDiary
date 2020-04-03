@@ -380,7 +380,7 @@ class PyDiary(Tk):
 		#ViewDiaryScreen
 		self.viewDiaryScreen.leftButtonSection.getButton("Create").config(command=self.launchCreateDiaryEntryWindow)
 		self.viewDiaryScreen.leftButtonSection.getButton("Exit").config(command=lambda: self.openScreen.show())
-
+		self.viewDiaryScreen.rightButtonSection.getButton("Open").config(command=self.attemptOpenDiaryEntry)
 		#======Last Calls=====
 		self.loadAllUserDatabases()
 
@@ -531,6 +531,27 @@ class PyDiary(Tk):
 		#Update the label at the top
 		self.viewDiaryScreen.topLabelVar.set(str(diaryObject.name)+" - Entries")
 
+	def displayDiaryEntry(self,diaryEntryObject):
+		"""
+		Will display a diary entry on the screen
+		"""
+		#Show the screen
+		self.viewDiaryEntryScreen.show()
+		#Clear the text box
+		self.viewDiaryEntryScreen.textArea.delete('1.0', END)
+		#Insert the data into the textbox
+		self.viewDiaryEntryScreen.textArea.insert('1.0', diaryEntryObject.content)
+		#Update the title
+		diaryName=diaryEntryObject.master.name
+		entryName=diaryEntryObject.title
+		#self.viewDiaryEntryScreen.currentDiaryName.set("My Diary - Entry #1")
+		self.viewDiaryEntryScreen.currentDiaryName.set(str(diaryName)+" - "+str(entryName))
+		#Update creation date
+		if diaryEntryObject.dateCreated:
+			self.viewDiaryEntryScreen.dateVar.set("Date Created: "+str(diaryEntryObject.dateCreated))
+
+
+
 	def attemptOpenDiary(self):
 		"""
 		Will attempt to open
@@ -542,6 +563,17 @@ class PyDiary(Tk):
 			self.displayDiary(current)
 		else:
 			showMessage("Error", "Please select a diary or create one")
+
+	def attemptOpenDiaryEntry(self):
+		"""
+		When the user clicks
+		to open a diary entry
+		"""
+		current = self.viewDiaryScreen.diaryEntryListbox.getCurrentObject()
+		if current:
+			self.displayDiaryEntry(current)
+		else:
+			showMessage("Error", "Please select an entry or create one")
 
 
 
