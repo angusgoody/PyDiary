@@ -29,7 +29,6 @@ class diary:
 		self.fontSize="13"
 		self.darkMode=False
 
-
 class diaryEntry:
 	"""
 	The diaryEntry stores

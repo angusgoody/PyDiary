@@ -62,6 +62,15 @@ class viewDiaryScreen(screen):
         # Configure sections
         self.titleBar = mainFrame(self)
         self.titleBar.grid(row=0, column=0, sticky="EW")
+        self.titleBar.grid_columnconfigure(0,weight=1)
+        self.titleBar.grid_columnconfigure(1,weight=1)
+        self.titleBar.grid_columnconfigure(2,weight=1)
+        self.titleLeftSide=mainFrame(self.titleBar)
+        self.titleLeftSide.grid(row=0,column=0,sticky="EW")
+        self.titleMiddle=mainFrame(self.titleBar)
+        self.titleMiddle.grid(row=0,column=1,sticky="EW")
+        self.titleRightSide=mainFrame(self.titleBar)
+        self.titleRightSide.grid(row=0,column=2,sticky="EW")
         self.toolBar=mainFrame(self)
         self.toolBar.grid(row=1,column=0,sticky="EW")
         self.mainContent = mainFrame(self)
@@ -69,11 +78,28 @@ class viewDiaryScreen(screen):
         self.buttonSection = buttonSection(self)
         self.buttonSection.grid(row=3, column=0, sticky="EW")
         #Title Bar
-        self.titleBar.gridConfig(0)
+        #Left Side
+        self.titleLeftSide.gridConfig(0)
         self.currentDiaryName=StringVar()
-        self.currentDiaryName.set("My Diary")
-        self.titleLabel=titleLabel(self.titleBar,textvariable=self.currentDiaryName)
+        self.currentDiaryName.set("My Diary - Entry #1")
+
+        self.titleLabel=advancedLabel(self.titleLeftSide,textvariable=self.currentDiaryName)
+        self.titleLabel.config(font=globalFont)
         self.titleLabel.grid(row=0,column=0)
+        #Middle Side
+        self.titleMiddle.gridConfig(0)
+        self.dateVar=StringVar()
+        self.dateVar.set("Date Created: 16/07/12")
+        self.dateLabel=advancedLabel(self.titleMiddle,textvariable=self.dateVar)
+        self.dateLabel.config(font=globalFontTiny)
+        self.dateLabel.grid(row=0,column=0)
+        #Right Side
+        self.titleRightSide.gridConfig(0)
+        self.wordCountVar=StringVar()
+        self.wordCountVar.set("Word Count: 120")
+        self.wordCountLabel=advancedLabel(self.titleRightSide,textvariable=self.wordCountVar)
+        self.wordCountLabel.config(font=globalFontTiny)
+        self.wordCountLabel.grid(row=0,column=0)
         #Tool Bar
         #Main Content
         self.mainContent.gridConfig(0)
