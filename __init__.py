@@ -307,10 +307,24 @@ class createDiaryEntryWindow(mainTopLevel):
 		#Setup Current Date
 		self.dateVar.set("Date: "+str(date.today()))
 		#Insert Template Name
-		#todo add while loop to check for previous entries
-		numberOfEntries=0
-		self.diaryEntryTitle.entry.insert(END,"Entry #"+str(numberOfEntries+1))
-		#todo add banned words
+		masterDiary=self.master.currentDiary
+		#Generate name that isn't taken
+		entryNumber=1
+		if masterDiary:
+			allEntries = masterDiary.entryList
+			allEntryNames = []
+			#Update banned words
+			self.diaryEntryTitle.entry.bannedWords=allEntryNames
+			# Create a list of titles
+			for e in allEntries:
+				allEntryNames.append(e.title)
+			newEntryName = "Entry #1"
+			counter = 2
+			while newEntryName in allEntryNames:
+				newEntryName = "Entry #" + str(counter)
+				counter += 1
+			entryNumber = counter - 1
+		self.diaryEntryTitle.entry.insert(END,"Entry #"+str(entryNumber))
 		#Run a content check after inserting data
 		self.diaryEntryTitle.entry.checkContent()
 		#Add the command
@@ -365,6 +379,7 @@ class PyDiary(Tk):
 		self.openScreen.buttonSection.getButton("Open").config(command=self.attemptOpenDiary)
 		#ViewDiaryScreen
 		self.viewDiaryScreen.leftButtonSection.getButton("Create").config(command=self.launchCreateDiaryEntryWindow)
+		self.viewDiaryScreen.leftButtonSection.getButton("Exit").config(command=lambda: self.openScreen.show())
 
 		#======Last Calls=====
 		self.loadAllUserDatabases()
