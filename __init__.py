@@ -106,10 +106,18 @@ class viewDiaryScreen(screen):
         self.wordCountLabel.grid(row=0,column=0)
         #Tool Bar
         #todo create custom class with bold font option
-        self.boldButton=Button(self.toolBarMiddle,text="B",width=7)
-        self.boldButton.grid(row=0,column=0)
-        self.italicButton=Button(self.toolBarMiddle,text="I",width=7)
-        self.italicButton.grid(row=0,column=1)
+        self.fontPickerVar=StringVar()
+        self.fontPickerVar.set("Arial")
+        self.fontOptions=["Helvetica","Arial","Avenir"]
+        self.fontPicker=ttk.OptionMenu(self.toolBarMiddle, self.fontPickerVar, self.fontOptions[0], *self.fontOptions)
+        self.fontPicker.configure(width=12)
+        self.fontPicker.grid(row=0,column=0)
+        self.fontSizeVar=StringVar()
+        self.fontSizeVar.set("13")
+        self.fontSizeOptions=[5,6,7,8,9,10,11,12,13,14,15,16,18,20,22]
+        self.fontSizePicker=ttk.OptionMenu(self.toolBarMiddle, self.fontSizeVar, self.fontSizeOptions[0], *self.fontSizeOptions)
+        self.fontSizePicker.configure(width=12)
+        self.fontSizePicker.grid(row=0,column=1)
         #Main Content
         self.mainContent.gridConfig(0)
         self.textArea=Text(self.mainContent)
