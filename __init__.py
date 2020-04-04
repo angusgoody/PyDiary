@@ -11,6 +11,7 @@ from diaryModule import *
 
 globalOffWhiteColour="#f2f2f2"
 globalRedColour="#f09892"
+globalGreenColour="#c1e3ca"
 # =========SCREENS==========
 class openScreen(screen):
 	"""
@@ -81,8 +82,12 @@ class viewDiaryEntryScreen(screen):
 
 		self.mainContent = mainFrame(self)
 		self.mainContent.grid(row=2, column=0, sticky="NSEW")
+
+		self.statusBar = mainFrame(self)
+
+
 		self.buttonSection = buttonSection(self)
-		self.buttonSection.grid(row=3, column=0, sticky="EW")
+		self.buttonSection.grid(row=4, column=0, sticky="EW")
 		#Title Bar
 		#Left Side
 		self.titleLeftSide.gridConfig(0)
@@ -122,14 +127,44 @@ class viewDiaryEntryScreen(screen):
 		#Main Content
 		self.mainContent.gridConfig(0)
 		self.textArea=Text(self.mainContent)
-		self.textArea.configure(borderwidth=0, highlightthickness=0)
+		self.textArea.configure(borderwidth=0, highlightthickness=0,padx=20)
 		self.textArea.grid(row=0,column=0,sticky="NSEW")
+		#Status Bar
+		self.statusBar.gridConfig(0)
+		self.statusVar=StringVar()
+		self.statusLabel=advancedLabel(self.statusBar,textvariable=self.statusVar)
+		self.statusLabel.grid(row=0,column=0)
 		#Button Bar
 		self.buttonSection.addButton("Close")
 		self.buttonSection.addButton("Save")
 		#Colour
 		self.buttonSection.colour(globalOffWhiteColour)
 		#self.titleBar.colour("#d1e8cc")
+
+	def showGoodStatus(self,message):
+		"""
+		Will show the status bar
+		with a green background
+		"""
+		self.statusBar.grid(row=3, column=0, sticky="EW")
+		self.statusVar.set(message)
+		self.statusBar.colour(globalGreenColour)
+
+	def showStatus(self,message):
+		"""
+		Will show the status
+		bar with a red background
+		"""
+		#todo create a status class
+		self.statusBar.grid(row=3, column=0, sticky="EW")
+		self.statusVar.set(message)
+		self.statusBar.colour(globalRedColour)
+
+	def hideStatus(self):
+		"""
+		Hide the status bar
+		"""
+		self.statusBar.grid_forget()
 
 class viewDiaryScreen(screen):
 	"""
@@ -384,8 +419,33 @@ class PyDiary(Tk):
 		self.viewDiaryScreen.rightButtonSection.getButton("Open").config(command=self.attemptOpenDiaryEntry)
 		#ViewDiaryEntryScreen
 		self.viewDiaryEntryScreen.buttonSection.getButton("Close").config(command=self.exitDiaryEntry)
+		self.viewDiaryEntryScreen.buttonSection.getButton("Save").config(command=self.quickSaveEntryData)
+
 		#======Last Calls=====
 		self.loadAllUserDatabases()
+
+	def quickSaveEntryData(self):
+		"""
+		When the user clicks "Save"
+		on the view diaryEntry screen
+		"""
+		# Save details
+		self.updateDiaryEntryData()
+		# Update status
+		self.viewDiaryEntryScreen.showGoodStatus("Data Saved")
+		#Wait a few seconds and hide the status bar
+		self.waithere(3)
+		self.viewDiaryEntryScreen.hideStatus()
+
+
+	def waithere(self,seconds):
+		"""
+		Will wait without the
+		ui hanging
+		"""
+		var = IntVar()
+		self.after((seconds*1000), var.set, 1)
+		self.wait_variable(var)
 
 	def exitDiaryEntry(self):
 		"""
@@ -428,13 +488,13 @@ class PyDiary(Tk):
 
 	def updateDiaryEntryData(self):
 		"""
-		Called when the user clicks "Save"
-		will update the contents of the entry
+		Will save the user data
+		to file for the given entry
 		"""
 		#Get currently opened diary entry
 		if self.currentDiaryEntry:
 			#Get data from textwidget
-			textData=self.viewDiaryEntryScreen.textArea.get("1.0",END)
+			textData=self.viewDiaryEntryScreen.textArea.get("1.0",END).rstrip("\n")
 			#Update the class
 			self.currentDiaryEntry.content=textData
 			#Save
@@ -598,7 +658,7 @@ class PyDiary(Tk):
 		#Clear the text box
 		self.viewDiaryEntryScreen.textArea.delete('1.0', END)
 		#Insert the data into the textbox
-		self.viewDiaryEntryScreen.textArea.insert('1.0', diaryEntryObject.content)
+		self.viewDiaryEntryScreen.textArea.insert('1.0', diaryEntryObject.content.rstrip("\n"))
 		#Update the title
 		diaryName=diaryEntryObject.master.name
 		entryName=diaryEntryObject.title
@@ -607,6 +667,8 @@ class PyDiary(Tk):
 		#Update creation date
 		if diaryEntryObject.dateCreated:
 			self.viewDiaryEntryScreen.dateVar.set("Date Created: "+str(diaryEntryObject.dateCreated))
+		#Set Focus
+		self.viewDiaryEntryScreen.textArea.focus_set()
 
 
 	def attemptOpenDiary(self):
