@@ -202,16 +202,26 @@ class viewDiaryScreen(screen):
 	"""
 	def __init__(self,controller):
 		screen.__init__(self,controller,"Diary")
+		#Variables
+		self.buttonHidden=True
+		#Config
 		self.grid_columnconfigure(0,weight=1)
-		self.grid_rowconfigure(1,weight=1)
+		self.grid_rowconfigure(3,weight=1)
 		#Configure
 		self.topBar=mainFrame(self)
 		self.topBar.grid(row=0,column=0)
+		self.searchFrame=mainFrame(self)
+		self.searchFrame.grid(row=1,column=0,sticky="EW")
+		# Seperator
+		self.sep = ttk.Separator(self,orient=HORIZONTAL)
+		self.sep.grid(row=2,column=0,sticky="EW")
+
 		self.mainContent=mainFrame(self)
-		self.mainContent.grid(row=1,column=0,sticky="NSEW")
+		self.mainContent.grid(row=3,column=0,sticky="NSEW")
 		self.buttonFrame=mainFrame(self)
-		self.buttonFrame.grid(row=2, column=0)
+		self.buttonFrame.grid(row=4, column=0,sticky="EW")
 		self.buttonFrame.grid_columnconfigure(0,weight=1)
+		self.buttonFrame.grid_columnconfigure(1, weight=1)
 		self.leftButtonSection=buttonSection(self.buttonFrame)
 		self.leftButtonSection.grid(row=0,column=0,sticky="EW",padx=20)
 		self.rightButtonSection=buttonSection(self.buttonFrame)
@@ -222,17 +232,41 @@ class viewDiaryScreen(screen):
 		self.topLabelVar.set("Diary - Entries")
 		self.titleLabel=titleLabel(self.topBar,textvariable=self.topLabelVar)
 		self.titleLabel.grid(row=0,column=0)
+		#Search Frame
+		self.searchFrame.grid_columnconfigure(0,weight=1)
+		self.searchBar=advancedEntry(self.searchFrame) #todo add placeholder to advancedEntry class
+		self.searchBar.grid(row=0,column=0,sticky="EW",pady=10,padx=10)
+		self.resetButton=Button(self.searchFrame,text="Reset")
+		self.resetButton.config(width=7)
+		#self.resetButton.grid(row=0,column=1,padx=(0,10))
+
 		#Main
 		self.mainContent.gridConfig(0)
 		self.diaryEntryListbox=advancedListbox(self.mainContent)
-		#self.diaryEntryListbox.configure(width=150)
+		self.diaryEntryListbox.configure(borderwidth=0, highlightthickness=0)
 		self.diaryEntryListbox.grid(row=0,column=0,sticky="NSEW")
 		#Buttons
 		self.rightButtonSection.addButton("Delete")
 		self.rightButtonSection.addButton("Open")
-		self.leftButtonSection.addButton("Exit")
+		self.leftButtonSection.addButton("Close")
 		self.leftButtonSection.addButton("Create")
+		#Colour
+		self.buttonFrame.colour("#d6d5eb")
+		#Bindings
+		self.searchBar.bind("<KeyRelease>",lambda event: self.master.masterWindow.runEntrySearch())
 
+	def showResetButton(self):
+		"""
+		Show the reset button
+		next to the search bar
+		"""
+		if self.buttonHidden:
+			self.resetButton.grid(row=0, column=1, padx=(0, 10))
+			self.buttonHidden=False
+
+	def hideResetButton(self):
+		self.resetButton.grid_forget()
+		self.buttonHidden=True
 
 
 # =========TOP LEVELS==========
@@ -444,15 +478,58 @@ class PyDiary(Tk):
 		self.openScreen.buttonSection.getButton("Open").config(command=self.attemptOpenDiary)
 		#ViewDiaryScreen
 		self.viewDiaryScreen.leftButtonSection.getButton("Create").config(command=self.launchCreateDiaryEntryWindow)
-		self.viewDiaryScreen.leftButtonSection.getButton("Exit").config(command=self.loadOpenScreen)
+		self.viewDiaryScreen.leftButtonSection.getButton("Close").config(command=self.loadOpenScreen)
 		self.viewDiaryScreen.rightButtonSection.getButton("Open").config(command=self.attemptOpenDiaryEntry)
 		self.viewDiaryScreen.rightButtonSection.getButton("Delete").config(command=self.attemptDeleteDiaryEntry)
+		self.viewDiaryScreen.resetButton.config(command=self.resetSearch)
 		#ViewDiaryEntryScreen
 		self.viewDiaryEntryScreen.buttonSection.getButton("Close").config(command=self.exitDiaryEntry)
 		self.viewDiaryEntryScreen.buttonSection.getButton("Save").config(command=self.quickSaveEntryData)
 
 		#======Last Calls=====
 		self.loadAllUserDatabases()
+
+	def runEntrySearch(self):
+		"""
+		Called on every keystroke
+		of the searchBar
+		"""
+		#Show reset button
+		self.viewDiaryScreen.showResetButton()
+		#Get the search term
+		searchTerm=self.viewDiaryScreen.searchBar.getContent()
+		#Check its valid
+		if len(searchTerm.split()) > 0:
+			#todo add search for contents and change view
+			objectMatches=[]
+			if self.currentDiary:
+				for e in self.currentDiary.entryList:
+					if searchTerm.upper() in str(e.title).upper():
+						objectMatches.append(e)
+			#Sort List
+			objectMatches=sorted(objectMatches,key=lambda x: x.title)
+			#Display Results
+			self.viewDiaryScreen.diaryEntryListbox.clear()
+			for r in objectMatches:
+				self.viewDiaryScreen.diaryEntryListbox.addObject(r.title,r)
+		else:
+			self.resetSearch()
+
+	def resetSearch(self):
+		"""
+		Called when the user clicks
+		"Reset"
+		"""
+		#Clear search bar
+		self.viewDiaryScreen.searchBar.clear()
+		#Reset listbox
+		self.viewDiaryScreen.diaryEntryListbox.clear()
+		if self.currentDiary:
+			for e in sorted(self.currentDiary.entryList, key=lambda x: x.title):
+				self.viewDiaryScreen.diaryEntryListbox.addObject(e.title, e)
+		#Hide the reset button
+		self.viewDiaryScreen.hideResetButton()
+
 
 	def deleteDiaryEntry(self,entryObject):
 		"""
@@ -463,7 +540,6 @@ class PyDiary(Tk):
 		masterDiary.entryList.remove(entryObject)
 		#Save
 		self.saveDiary()
-
 
 	def quickSaveEntryMetaData(self,**kwargs):
 		"""
@@ -727,8 +803,9 @@ class PyDiary(Tk):
 		self.currentDiary=diaryObject
 		#Clear the listbox
 		self.viewDiaryScreen.diaryEntryListbox.clear()
+		#Sort data
 		#Add the entries to the listbox
-		for e in diaryObject.entryList:
+		for e in sorted(diaryObject.entryList,key=lambda x: x.title):
 			self.viewDiaryScreen.diaryEntryListbox.addObject(e.title,e)
 		#Update the label at the top
 		self.viewDiaryScreen.topLabelVar.set(str(diaryObject.name)+" - Entries")
