@@ -71,17 +71,17 @@ class viewDiaryEntryScreen(screen):
 		self.titleBar.grid_columnconfigure(1,weight=1)
 		self.titleBar.grid_columnconfigure(2,weight=1)
 		self.titleLeftSide=mainFrame(self.titleBar)
-		self.titleLeftSide.grid(row=0,column=0,sticky="EW")
+		self.titleLeftSide.grid(row=0,column=0,sticky="EW",pady=10)
 		self.titleMiddle=mainFrame(self.titleBar)
-		self.titleMiddle.grid(row=0,column=1,sticky="EW")
+		self.titleMiddle.grid(row=0,column=1,sticky="EW",pady=10)
 		self.titleRightSide=mainFrame(self.titleBar)
-		self.titleRightSide.grid(row=0,column=2,sticky="EW")
+		self.titleRightSide.grid(row=0,column=2,sticky="EW",pady=10)
 
 		self.toolBar=mainFrame(self)
 		self.toolBar.grid(row=1,column=0,sticky="EW")
 		self.toolBar.gridConfig(0)
 		self.toolBarMiddle=mainFrame(self.toolBar)
-		self.toolBarMiddle.grid(row=0,column=0)
+		self.toolBarMiddle.grid(row=0,column=0,pady=10)
 
 		self.mainContent = mainFrame(self)
 		self.mainContent.grid(row=2, column=0, sticky="NSEW")
@@ -444,7 +444,7 @@ class PyDiary(Tk):
 		self.openScreen.buttonSection.getButton("Open").config(command=self.attemptOpenDiary)
 		#ViewDiaryScreen
 		self.viewDiaryScreen.leftButtonSection.getButton("Create").config(command=self.launchCreateDiaryEntryWindow)
-		self.viewDiaryScreen.leftButtonSection.getButton("Exit").config(command=lambda: self.openScreen.show())
+		self.viewDiaryScreen.leftButtonSection.getButton("Exit").config(command=self.loadOpenScreen)
 		self.viewDiaryScreen.rightButtonSection.getButton("Open").config(command=self.attemptOpenDiaryEntry)
 		#ViewDiaryEntryScreen
 		self.viewDiaryEntryScreen.buttonSection.getButton("Close").config(command=self.exitDiaryEntry)
@@ -509,7 +509,7 @@ class PyDiary(Tk):
 					self.updateDiaryEntryData()
 		else:
 			#Change the screen
-			self.loadOpenScreen()
+			self.viewDiaryScreen.show()
 
 	def hasEntryDataChanged(self):
 		"""
@@ -577,7 +577,7 @@ class PyDiary(Tk):
 		with correct data
 		"""
 		#Show
-		openScreen.show()
+		self.openScreen.show()
 		#Load
 		self.loadAllUserDatabases()
 
