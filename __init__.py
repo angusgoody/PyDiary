@@ -355,13 +355,14 @@ class PyDiary(Tk):
 		Tk.__init__(self)
 		#Setup
 		self.title("PyDiary")
-		self.geometry("700x500")
+		self.geometry("750x500")
 		self.grid_rowconfigure(0,weight=1)
 		self.grid_columnconfigure(0,weight=1)
 		self.screenMaster=screenController(self)
 		self.screenMaster.grid(row=0,column=0,sticky="NSEW")
 		#Globals
 		self.currentDiary=None
+		self.currentDiaryEntry=None
 		#Project Manager
 		self.projectManager=projectManager(getWorkingDirectory(),"PyDiary")
 		self.projectManager.fileExtension=".pdy"
@@ -381,8 +382,63 @@ class PyDiary(Tk):
 		self.viewDiaryScreen.leftButtonSection.getButton("Create").config(command=self.launchCreateDiaryEntryWindow)
 		self.viewDiaryScreen.leftButtonSection.getButton("Exit").config(command=lambda: self.openScreen.show())
 		self.viewDiaryScreen.rightButtonSection.getButton("Open").config(command=self.attemptOpenDiaryEntry)
+		#ViewDiaryEntryScreen
+		self.viewDiaryEntryScreen.buttonSection.getButton("Close").config(command=self.exitDiaryEntry)
 		#======Last Calls=====
 		self.loadAllUserDatabases()
+
+	def exitDiaryEntry(self):
+		"""
+		Called when user clicks
+		the "Close" button, will prompt
+		user to save and then quit
+		"""
+		#Check data change
+		if self.hasEntryDataChanged():
+			#Get user response
+			userResponse=askYesNoCancel("Save","Would you like to save before exit?")
+			#If response not None then continue
+			if userResponse is not None:
+				#Change the screen
+				self.viewDiaryScreen.show()
+				#Save if required
+				if userResponse:
+					#Save details
+					self.updateDiaryEntryData()
+		else:
+			#Change the screen
+			self.viewDiaryScreen.show()
+
+	def hasEntryDataChanged(self):
+		"""
+		Will check that the user has
+		changed any data in the entry
+		since the last save
+		Return False is no change
+		Return True is change
+		"""
+		if self.currentDiaryEntry:
+			entryContent=str(self.currentDiaryEntry.content).rstrip("\n")
+			textData=str(self.viewDiaryEntryScreen.textArea.get("1.0",END)).rstrip("\n")
+			if entryContent == textData:
+				return False
+			else:
+				return True
+		return True
+
+	def updateDiaryEntryData(self):
+		"""
+		Called when the user clicks "Save"
+		will update the contents of the entry
+		"""
+		#Get currently opened diary entry
+		if self.currentDiaryEntry:
+			#Get data from textwidget
+			textData=self.viewDiaryEntryScreen.textArea.get("1.0",END)
+			#Update the class
+			self.currentDiaryEntry.content=textData
+			#Save
+			self.saveDiary()
 
 	def saveDiary(self):
 		"""
@@ -537,6 +593,8 @@ class PyDiary(Tk):
 		"""
 		#Show the screen
 		self.viewDiaryEntryScreen.show()
+		#Update Variable
+		self.currentDiaryEntry=diaryEntryObject
 		#Clear the text box
 		self.viewDiaryEntryScreen.textArea.delete('1.0', END)
 		#Insert the data into the textbox
@@ -549,7 +607,6 @@ class PyDiary(Tk):
 		#Update creation date
 		if diaryEntryObject.dateCreated:
 			self.viewDiaryEntryScreen.dateVar.set("Date Created: "+str(diaryEntryObject.dateCreated))
-
 
 
 	def attemptOpenDiary(self):
