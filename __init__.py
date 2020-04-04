@@ -446,12 +446,24 @@ class PyDiary(Tk):
 		self.viewDiaryScreen.leftButtonSection.getButton("Create").config(command=self.launchCreateDiaryEntryWindow)
 		self.viewDiaryScreen.leftButtonSection.getButton("Exit").config(command=self.loadOpenScreen)
 		self.viewDiaryScreen.rightButtonSection.getButton("Open").config(command=self.attemptOpenDiaryEntry)
+		self.viewDiaryScreen.rightButtonSection.getButton("Delete").config(command=self.attemptDeleteDiaryEntry)
 		#ViewDiaryEntryScreen
 		self.viewDiaryEntryScreen.buttonSection.getButton("Close").config(command=self.exitDiaryEntry)
 		self.viewDiaryEntryScreen.buttonSection.getButton("Save").config(command=self.quickSaveEntryData)
 
 		#======Last Calls=====
 		self.loadAllUserDatabases()
+
+	def deleteDiaryEntry(self,entryObject):
+		"""
+		Will remove a diaryEntry from a diary
+		"""
+		masterDiary=entryObject.master
+		#Remove from list
+		masterDiary.entryList.remove(entryObject)
+		#Save
+		self.saveDiary()
+
 
 	def quickSaveEntryMetaData(self,**kwargs):
 		"""
@@ -778,6 +790,20 @@ class PyDiary(Tk):
 		else:
 			showMessage("Error", "Please select an entry or create one")
 
+	def attemptDeleteDiaryEntry(self):
+		"""
+		Called when user clicks "Delete"
+		"""
+		current = self.viewDiaryScreen.diaryEntryListbox.getCurrentObject()
+		if current:
+			#Delete
+			self.deleteDiaryEntry(current)
+			#Remove from listbox
+			#todo add method to delete in tkinterTools
+			currentIndex=self.viewDiaryScreen.diaryEntryListbox.curselection()
+			self.viewDiaryScreen.diaryEntryListbox.delete(currentIndex)
+		else:
+			showMessage("Error", "Please select an entry to delete")
 
 
 
