@@ -88,7 +88,6 @@ class viewDiaryEntryScreen(screen):
 
 		self.statusBar = mainFrame(self)
 
-
 		self.buttonSection = buttonSection(self)
 		self.buttonSection.grid(row=4, column=0, sticky="EW")
 		#Title Bar
@@ -111,7 +110,7 @@ class viewDiaryEntryScreen(screen):
 		self.wordCountVar=StringVar()
 		self.wordCountVar.set("Word Count: 120")
 		self.wordCountLabel=advancedLabel(self.titleRightSide,textvariable=self.wordCountVar)
-		self.wordCountLabel.config(font=globalFontTiny)
+		self.wordCountLabel.config(font=globalFontTiny,width=20)
 		self.wordCountLabel.grid(row=0,column=0)
 		#Tool Bar
 		#todo create custom class with bold font option
@@ -133,6 +132,7 @@ class viewDiaryEntryScreen(screen):
 		self.mainContent.gridConfig(0)
 		self.textArea=Text(self.mainContent)
 		self.textArea.configure(borderwidth=0, highlightthickness=0,padx=20,pady=30)
+		self.textArea.config(wrap=WORD)
 		self.textArea.grid(row=0,column=0,sticky="NSEW")
 		#Status Bar
 		self.statusBar.gridConfig(0)

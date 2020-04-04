@@ -10,6 +10,7 @@ Contains Diary Classes
 
 # =========IMPORTS==========
 from datetime import date
+from datetime import datetime
 
 # =========FUNCTIONS==========
 
@@ -54,6 +55,7 @@ class diaryEntry:
 		self.master=master
 		self.title = title
 		self.dateCreated=str(date.today())
+		self.timeCreated=datetime.now().strftime("%H:%M")
 		self.content=""
 
 
