@@ -12,6 +12,9 @@ from diaryModule import *
 globalOffWhiteColour="#f2f2f2"
 globalRedColour="#f09892"
 globalGreenColour="#c1e3ca"
+
+globalFontList=["Arial","Avenir","Times","Courier","Helvetica","Verdana","Comic Sans MS"]
+
 # =========SCREENS==========
 class openScreen(screen):
 	"""
@@ -114,20 +117,22 @@ class viewDiaryEntryScreen(screen):
 		#todo create custom class with bold font option
 		self.fontPickerVar=StringVar()
 		self.fontPickerVar.set("Arial")
-		self.fontOptions=["Helvetica","Arial","Avenir"]
-		self.fontPicker=ttk.OptionMenu(self.toolBarMiddle, self.fontPickerVar, self.fontOptions[0], *self.fontOptions)
+		#todo ammend colour function for optionMenu
+		self.fontPicker=ttk.OptionMenu(self.toolBarMiddle, self.fontPickerVar, globalFontList[0],
+									   *globalFontList,command=lambda value: self.updateTextWidget() )
 		self.fontPicker.configure(width=12)
 		self.fontPicker.grid(row=0,column=0)
 		self.fontSizeVar=StringVar()
 		self.fontSizeVar.set("13")
 		self.fontSizeOptions=[5,6,7,8,9,10,11,12,13,14,15,16,18,20,22]
-		self.fontSizePicker=ttk.OptionMenu(self.toolBarMiddle, self.fontSizeVar, self.fontSizeOptions[0], *self.fontSizeOptions)
+		self.fontSizePicker=ttk.OptionMenu(self.toolBarMiddle, self.fontSizeVar, self.fontSizeOptions[0],
+										   *self.fontSizeOptions,command=lambda value: self.updateTextWidget() )
 		self.fontSizePicker.configure(width=12)
 		self.fontSizePicker.grid(row=0,column=1)
 		#Main Content
 		self.mainContent.gridConfig(0)
 		self.textArea=Text(self.mainContent)
-		self.textArea.configure(borderwidth=0, highlightthickness=0,padx=20)
+		self.textArea.configure(borderwidth=0, highlightthickness=0,padx=20,pady=30)
 		self.textArea.grid(row=0,column=0,sticky="NSEW")
 		#Status Bar
 		self.statusBar.gridConfig(0)
@@ -139,7 +144,10 @@ class viewDiaryEntryScreen(screen):
 		self.buttonSection.addButton("Save")
 		#Colour
 		self.buttonSection.colour(globalOffWhiteColour)
-		#self.titleBar.colour("#d1e8cc")
+		self.titleBar.colour(globalOffWhiteColour)
+		self.toolBar.colour(globalOffWhiteColour)
+		#Bindings
+		self.textArea.bind("<KeyRelease>",lambda event: self.updateWordCount())
 
 	def showGoodStatus(self,message):
 		"""
@@ -165,6 +173,27 @@ class viewDiaryEntryScreen(screen):
 		Hide the status bar
 		"""
 		self.statusBar.grid_forget()
+
+	def updateWordCount(self):
+		"""
+		Will calculate word count
+		"""
+		content=self.textArea.get("1.0",END)
+		wordCount=len(content.split())
+		self.wordCountVar.set("Word Count: "+str(wordCount))
+
+	def updateTextWidget(self):
+		"""
+		Will update the text widget
+		ie, change fonts etc
+		"""
+		#Get Data
+		font=self.fontPickerVar.get()
+		fontSize=self.fontSizeVar.get()
+		#Update
+		self.textArea.configure(font=(font,fontSize))
+		#Save
+		self.master.masterWindow.quickSaveEntryMetaData()
 
 class viewDiaryScreen(screen):
 	"""
@@ -424,6 +453,20 @@ class PyDiary(Tk):
 		#======Last Calls=====
 		self.loadAllUserDatabases()
 
+	def quickSaveEntryMetaData(self,**kwargs):
+		"""
+		Will only save font information
+		etc
+		"""
+		displayMessage=kwargs.get("message","Details saved")
+		#Save
+		self.updateDiaryEntryMetaData()
+		# Update status
+		self.viewDiaryEntryScreen.showGoodStatus(displayMessage)
+		# Wait a few seconds and hide the status bar
+		self.waithere(1)
+		self.viewDiaryEntryScreen.hideStatus()
+
 	def quickSaveEntryData(self):
 		"""
 		When the user clicks "Save"
@@ -436,7 +479,6 @@ class PyDiary(Tk):
 		#Wait a few seconds and hide the status bar
 		self.waithere(3)
 		self.viewDiaryEntryScreen.hideStatus()
-
 
 	def waithere(self,seconds):
 		"""
@@ -467,7 +509,7 @@ class PyDiary(Tk):
 					self.updateDiaryEntryData()
 		else:
 			#Change the screen
-			self.viewDiaryScreen.show()
+			self.loadOpenScreen()
 
 	def hasEntryDataChanged(self):
 		"""
@@ -495,10 +537,29 @@ class PyDiary(Tk):
 		if self.currentDiaryEntry:
 			#Get data from textwidget
 			textData=self.viewDiaryEntryScreen.textArea.get("1.0",END).rstrip("\n")
-			#Update the class
-			self.currentDiaryEntry.content=textData
+			# Update the class
+			self.currentDiaryEntry.content = textData
+			# Save the metdata (fonts etc)
+			self.updateDiaryEntryMetaData(save=False)
 			#Save
 			self.saveDiary()
+
+	def updateDiaryEntryMetaData(self,**kwargs):
+		"""
+		Save to file the metdata for
+		the entry, font etc
+		"""
+		saveToFile=kwargs.get("save",True) #Should it be saved to file yet
+		if self.currentDiary:
+			# Save font settings
+			chosenFont = self.viewDiaryEntryScreen.fontPickerVar.get()
+			chosenFontSize = self.viewDiaryEntryScreen.fontSizeVar.get()
+			# Update the class
+			self.currentDiary.font = chosenFont
+			self.currentDiary.fontSize = chosenFontSize
+			if saveToFile:
+				self.saveDiary()
+
 
 	def saveDiary(self):
 		"""
@@ -508,6 +569,17 @@ class PyDiary(Tk):
 		"""
 		if self.currentDiary:
 			self.projectManager.saveUserData(self.currentDiary.name, self.currentDiary)
+
+	def loadOpenScreen(self):
+		"""
+		Will show the open screen
+		and update the listbox
+		with correct data
+		"""
+		#Show
+		openScreen.show()
+		#Load
+		self.loadAllUserDatabases()
 
 	def loadAllUserDatabases(self):
 		"""
@@ -610,6 +682,8 @@ class PyDiary(Tk):
 				#Quit the window
 				windowObject.quit()
 				windowQuit=True
+				#Add to listbox
+				self.openScreen.openListbox.addObject(diaryObj.name,diaryObj)
 				#Open that diary
 				self.displayDiary(diaryObj)
 
@@ -659,16 +733,26 @@ class PyDiary(Tk):
 		self.viewDiaryEntryScreen.textArea.delete('1.0', END)
 		#Insert the data into the textbox
 		self.viewDiaryEntryScreen.textArea.insert('1.0', diaryEntryObject.content.rstrip("\n"))
+		#Calculate word count
+		self.viewDiaryEntryScreen.updateWordCount()
 		#Update the title
 		diaryName=diaryEntryObject.master.name
 		entryName=diaryEntryObject.title
-		#self.viewDiaryEntryScreen.currentDiaryName.set("My Diary - Entry #1")
 		self.viewDiaryEntryScreen.currentDiaryName.set(str(diaryName)+" - "+str(entryName))
 		#Update creation date
 		if diaryEntryObject.dateCreated:
 			self.viewDiaryEntryScreen.dateVar.set("Date Created: "+str(diaryEntryObject.dateCreated))
+		if self.currentDiary:
+			#Update font
+			userFont=self.currentDiary.font
+			userFontSize=self.currentDiary.fontSize
+			self.viewDiaryEntryScreen.fontPickerVar.set(userFont)
+			self.viewDiaryEntryScreen.fontSizeVar.set(userFontSize)
+			#Update the text widget font
+			self.viewDiaryEntryScreen.textArea.configure(font=(userFont,userFontSize))
 		#Set Focus
-		self.viewDiaryEntryScreen.textArea.focus_set()
+		self.focus_force() #So widgets respond
+		self.viewDiaryEntryScreen.textArea.focus_set() #Allow user to start typing
 
 
 	def attemptOpenDiary(self):
