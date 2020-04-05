@@ -120,14 +120,17 @@ class viewDiaryEntryScreen(screen):
 		self.fontPicker=ttk.OptionMenu(self.toolBarMiddle, self.fontPickerVar, globalFontList[0],
 									   *globalFontList,command=lambda value: self.updateTextWidget() )
 		self.fontPicker.configure(width=12)
-		self.fontPicker.grid(row=0,column=0)
+		self.fontPicker.grid(row=0,column=0,padx=5)
 		self.fontSizeVar=StringVar()
 		self.fontSizeVar.set("13")
 		self.fontSizeOptions=[5,6,7,8,9,10,11,12,13,14,15,16,18,20,22]
 		self.fontSizePicker=ttk.OptionMenu(self.toolBarMiddle, self.fontSizeVar, self.fontSizeOptions[0],
 										   *self.fontSizeOptions,command=lambda value: self.updateTextWidget() )
-		self.fontSizePicker.configure(width=12)
-		self.fontSizePicker.grid(row=0,column=1)
+		self.fontSizePicker.configure(width=8)
+		self.fontSizePicker.grid(row=0,column=1,padx=5)
+		#Settings Button
+		self.settingsButton=Button(self.toolBarMiddle,text="Settings",width=8)
+		self.settingsButton.grid(row=0,column=2,padx=5)
 		#Main Content
 		self.mainContent.gridConfig(0)
 		self.textArea=Text(self.mainContent)
@@ -840,7 +843,6 @@ class PyDiary(Tk):
 			#Update the text widget font
 			self.viewDiaryEntryScreen.textArea.configure(font=(userFont,userFontSize))
 		#Set Focus
-		self.focus_force() #So widgets respond
 		self.viewDiaryEntryScreen.textArea.focus_set() #Allow user to start typing
 
 
