@@ -1,0 +1,3 @@
+[submodule "shed"]
+	path = shed
+	url = https://github.com/angusgoody/shed

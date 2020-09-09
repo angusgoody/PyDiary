@@ -1,4 +1,6 @@
 # Specify filepatterns you want git to ignore.
 
 /*.idea
-/shed
+PyDiary data*
+__pycache__*
+shed*
